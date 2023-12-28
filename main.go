@@ -30,6 +30,10 @@ func (t Training) distance() float64 {
 
 // meanSpeed возвращает среднюю скорость бега или ходьбы.
 func (t Training) meanSpeed() float64 {
+	if t.Duration == 0 {
+		return 0
+	}
+
 	return t.distance() / (t.Duration.Minutes() / MinInHours)
 }
 
@@ -88,7 +92,12 @@ type Running struct {
 
 // Calories возввращает количество потраченных килокалория при беге.
 func (r Running) Calories() float64 {
-	return (CaloriesMeanSpeedMultiplier*r.meanSpeed() + CaloriesMeanSpeedShift) * r.Weight / MInKm * r.Duration.Hours() * MinInHours
+	if r.Duration == 0 {
+		return 0
+	}
+
+	speed := CaloriesMeanSpeedMultiplier*r.meanSpeed() + CaloriesMeanSpeedShift
+	return speed * r.Weight / MInKm * r.Duration.Hours() * MinInHours
 }
 
 // TrainingInfo возвращает структуру InfoMessage с информацией о проведенной тренировке.
@@ -117,7 +126,12 @@ type Walking struct {
 
 // Calories возвращает количество потраченных килокалорий при ходьбе.
 func (w Walking) Calories() float64 {
-	return (CaloriesWeightMultiplier*w.Weight + (math.Pow(w.meanSpeed()*KmHInMsec, 2)/(w.Height/CmInM))*CaloriesSpeedHeightMultiplier*w.Weight) * w.Duration.Hours() * MinInHours
+	if w.Weight == 0 {
+		return 0
+	}
+
+	speed := math.Pow(w.meanSpeed()*KmHInMsec, 2) / (w.Height / CmInM)
+	return (CaloriesWeightMultiplier*w.Weight + speed*CaloriesSpeedHeightMultiplier*w.Weight) * w.Duration.Hours() * MinInHours
 }
 
 // TrainingInfo возвращает структуру InfoMessage с информацией о проведенной тренировке.
@@ -147,12 +161,17 @@ type Swimming struct {
 
 // meanSpeed возвращает среднюю скорость при плавании в км/ч
 func (s Swimming) meanSpeed() float64 {
-	return float64(s.LengthPool) * float64(s.CountPool) / MInKm / s.Duration.Hours() * MinInHours
+	if s.Duration == 0 {
+		return 0
+	}
+
+	return float64(s.LengthPool) * float64(s.CountPool) / MInKm / s.Duration.Hours()
 }
 
 // Calories возвращает количество калорий, потраченных при плавании.
 func (s Swimming) Calories() float64 {
-	return (s.meanSpeed() + SwimmingCaloriesMeanSpeedShift) * SwimmingCaloriesWeightMultiplier * s.Weight * s.Duration.Hours()
+	speed := s.meanSpeed() + SwimmingCaloriesMeanSpeedShift
+	return speed * SwimmingCaloriesWeightMultiplier * s.Weight * s.Duration.Hours()
 }
 
 // TrainingInfo returns info about swimming training.
