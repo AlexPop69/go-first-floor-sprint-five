@@ -126,7 +126,7 @@ type Walking struct {
 
 // Calories возвращает количество потраченных килокалорий при ходьбе.
 func (w Walking) Calories() float64 {
-	if w.Weight == 0 {
+	if w.Height == 0 {
 		return 0
 	}
 
