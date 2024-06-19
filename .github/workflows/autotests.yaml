@@ -1,28 +1,24 @@
-name: autotests
+name: Go
 
 on: push
 
 jobs:
 
-  ftrackertest:
+  build:
     runs-on: ubuntu-latest
-    container: golang:1.20
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
 
-      - name: Checkout tests code
-        uses: actions/checkout@v4
-        with:
-          repository: 'Yandex-Practicum/go-autotests'
-          path: '.autotests'
+    - name: Build
+      run: go build -v ./...
 
-      - name: Gather files
-        run: |
-          cp .autotests/cmd/fitnesstest/main_test.go main_test.go
+  tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
 
-      - name: Run tests
-        run: |
-          go mod tidy
-          go test -test.v ./...
+    - name: Test
+      run: go test -v ./...
