@@ -6,12 +6,23 @@ jobs:
 
   ftrackertest:
     runs-on: ubuntu-latest
-    container: golang:1.21
+    container: golang:1.20
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Go test
+      - name: Checkout tests code
+        uses: actions/checkout@v4
+        with:
+          repository: 'Yandex-Practicum/go-autotests'
+          path: '.autotests'
+
+      - name: Gather files
         run: |
-          go test -v ./...
+          cp .autotests/cmd/fitnesstest/main_test.go main_test.go
+
+      - name: Run tests
+        run: |
+          go mod tidy
+          go test -test.v ./...
